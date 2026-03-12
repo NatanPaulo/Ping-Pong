@@ -1,86 +1,86 @@
-// Seleciona o elemento <canvas> do HTML
+// Seleciona o <canvas> do HTML
 const canvasEl = document.querySelector("canvas");
 
-// Obtém o contexto 2D do canvas (ferramentas de desenho)
+// Obter o contexto 2D do Canvas (ferramenta de desenho)
 const canvasCtx = canvasEl.getContext("2d");
-// Isso cria um contexto de desenho 2D, que fornece métodos como:
-// - fillRect() → desenhar retângulos
-// - arc() → desenhar círculos
-// - fillText() → desenhar texto
-// - beginPath() → iniciar um desenho
-// Pense assim: Canvas = tela, Context = pincel
+// Isso cria um contexto de desenho em 2D, que fornece métodos comos:
+// - fillRect() -> desenha retângulos
+// - arc() -> desenha círculos
+// - fillText() -> desenha textos
+// - beginPath() -> inicia um desenho
+// Pense assim: Canvas = Tela, Context = Pincel
 
-// Espaçamento lateral usado para as raquetes
+// Espaçamento lateral usado para as raquetes:
 const gapX = 10;
 
-/* =========================
-   CAMPO DO JOGO
-========================= */
+// Campo do jogo:
 const field = {
-  // Largura do campo = largura da janela
+  // Largura da janela
   w: window.innerWidth,
-
-  // Altura do campo = altura da janela
+  // Altura da janela
   h: window.innerHeight,
 
-  // Função responsável por desenhar o campo
+  //   Função responsável por desenhar o campo
   draw: function () {
-    // Define a cor de preenchimento
+    // Definir a cor do preenchimento
     canvasCtx.fillStyle = "#286047";
 
     // Desenha um retângulo preenchendo toda a tela
     // fillRect(x, y, largura, altura)
     canvasCtx.fillRect(0, 0, this.w, this.h);
   },
-
   // O que é "this"?
-  // Em JavaScript, this representa o objeto atual, ou seja:
-  // “o dono da função que está sendo executada”
-
-  // Isso evita repetir o nome do objeto e deixa o código:
-  // - Mais organizado
-  // - Mais reutilizável
-  // - Mais fácil de manter
-
-  // Conclusão:
-  // “this sempre aponta para quem chamou a função”
+  // Em JS, this representa o objeto atual, ou seja:
+  // "o dono da função que está sendo executada"
+  //   Isso evita repetir o nome do objeto e deixa o código:
+  //   - Mais organizado
+  //   - Mais reutilizável
+  //   - Mais fácil de manter
+  //   Ou seja, "this sempre aponta para quem chamou a função"
 };
 
-/* =========================
-   LINHA CENTRAL
-========================= */
+// Configuração inicial:
+function setup() {
+  canvasEl.width = field.w;
+  canvasEl.height = field.h;
+  // Centraliza a bola no inico do jogo
+  ball.x = field.w / 2;
+  ball.y = field.h / 2;
+}
+
+// Linha central:
 const line = {
-  w: 15, // Largura da linha
-  h: field.h, // Altura igual ao campo
+  w: 15, //Largura da linha
+  h: field.h, //Altura da linha de acordo com o tamanho do campo
 
   draw: function () {
-    canvasCtx.fillStyle = "#ffffff";
-
-    // Centraliza a linha horizontalmente
+    // Cor da linha/rede
+    canvasCtx.fillStyle = "#fff";
+    // Centralizar a linha horizontalmente
     canvasCtx.fillRect(field.w / 2 - this.w / 2, 0, this.w, this.h);
   },
 };
 
-/* =========================
-   RAQUETE ESQUERDA (JOGADOR)
-========================= */
-const leftPaddle = {
-  x: gapX, // Distância da esquerda
-  y: 0, // Posição inicial vertical
-  w: line.w, // Largura igual à linha
-  h: 200, // Altura da raquete
+// Posição inicial do mouse:
+const mouse = { x: 0, y: 0 };
 
-// FUNÇÕES COM "_" (NOMECLATURA):
-// "_" indica método interno
-// Não é privado de verdade
-// É convenção, não regra
-_move: function () {
-    // Centraliza a raquete no mouse
+// Raquete esquerda (jogador):
+const leftPaddle = {
+  x: gapX, //Distancia da esquerda
+  y: 0, //Posição inicial vertical
+  w: line.w, //Largura igual à linha
+  h: 200, //Altura da raquete
+
+  // Funções com "_"(nomenclatura)
+  // "_" indica métodos interno.
+  // Não é privado de verdade.
+  // É uma convenção, e não uma regra
+  _move: function () {
+    // Centralizar a raquete no mouse
     this.y = mouse.y - this.h / 2;
 
     // Limite superior
     if (this.y < 0) this.y = 0;
-
     // Limite inferior
     if (this.y + this.h > field.h) {
       this.y = field.h - this.h;
@@ -96,31 +96,28 @@ _move: function () {
   },
 };
 
-/* =========================
-   RAQUETE DIREITA (COMPUTADOR)
-========================= */
+// Raquete direita (computador)
 const rightPaddle = {
   x: field.w - line.w - gapX,
   y: 0,
   w: line.w,
   h: 200,
-  speed: 5, // Velocidade da IA
+  speed: 2, //Velocidade da IA
 
   // Movimento automático seguindo a bola
   _move: function () {
     const center = this.y + this.h / 2;
-    const error = Math.random() * 30 - 15; // erro proposital
 
-    if (center < ball.y + error) {
+    if (center < ball.y) {
       this.y += this.speed;
     } else {
       this.y -= this.speed;
     }
   },
 
-  // Aumenta a dificuldade
+  // Aumenta dificuldade
   speedUp: function () {
-    if (this.speed < 15) {
+    if (this.speed < 10) {
       this.speed += 1;
     }
   },
@@ -132,17 +129,15 @@ const rightPaddle = {
   },
 };
 
-/* =========================
-   PLACAR
-========================= */
+// Placar:
 const score = {
   human: 0,
   computer: 0,
 
+  // Acumulo de pontos
   increaseHuman: function () {
     this.human++;
   },
-
   increaseComputer: function () {
     this.computer++;
   },
@@ -155,22 +150,44 @@ const score = {
 
     // Pontuação do jogador
     canvasCtx.fillText(this.human, field.w / 4, 50);
-
     // Pontuação do computador
     canvasCtx.fillText(this.computer, field.w * 0.75, 50);
   },
 };
 
-/* =========================
-   BOLA
-========================= */
+// Bola:
 const ball = {
   x: 0,
   y: 0,
-  r: 20, // Raio
-  speed: 5, // Velocidade
-  directionX: 1, // Direção horizontal (1 ou -1)
-  directionY: 1, // Direção vertical (1 ou -1)
+  r: 20, //Raio
+  speed: 10,
+  directionX: 1, //Direção horizontal (1 ou -1)
+  directionY: 1, //Direção vertical (1 ou -1)
+
+  // Ricochete Horizontal
+  _reverseX: function () {
+    this.directionX *= -1;
+    // Variação vertical aleatória
+    this.directionY = Math.random() * 2 - 1;
+  },
+  // Ricochete Vertical
+  _reverseY: function () {
+    this.directionY *= -1;
+  },
+  // Velocidade da bola
+  _speedUp: function () {
+    this.speed += 1;
+  },
+  _move: function () {
+    this.x += this.directionX * this.speed;
+    this.y += this.directionY * this.speed;
+  },
+  _pointUp: function () {
+    this._speedUp();
+    rightPaddle.speedUp();
+    this.x = field.w / 2;
+    this.y = field.h / 2;
+  },
 
   // Verifica colisões e pontuação
   _calcPosition: function () {
@@ -186,7 +203,6 @@ const ball = {
         this._pointUp();
       }
     }
-
     // Colisão com raquete esquerda
     if (this.x < this.r + leftPaddle.w + gapX) {
       if (
@@ -199,7 +215,6 @@ const ball = {
         this._pointUp();
       }
     }
-
     // Colisão com teto ou chão
     if (
       (this.y - this.r < 0 && this.directionY < 0) ||
@@ -209,67 +224,20 @@ const ball = {
     }
   },
 
-  _reverseX: function () {
-    this.directionX *= -1;
-
-    // Variação vertical aleatória
-    this.directionY = Math.random() * 2 - 1;
-  },
-
-  _reverseY: function () {
-    this.directionY *= -1;
-  },
-
-  _speedUp: function () {
-    this.speed += 1;
-  },
-
-  _pointUp: function () {
-    this._speedUp();
-    rightPaddle.speedUp();
-    this.x = field.w / 2;
-    this.y = field.h / 2;
-  },
-
-  _move: function () {
-    // Atualiza posição com base em direção e velocidade
-    this.x += this.directionX * this.speed;
-    this.y += this.directionY * this.speed;
-  },
-
   draw: function () {
-    canvasCtx.fillStyle = "#ffffff";
+    canvasCtx.fillStyle = "#fa7a02";
     canvasCtx.beginPath();
 
     // arc(x, y, raio, anguloInicial, anguloFinal)
     canvasCtx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
-
     canvasCtx.fill();
+    canvasCtx.stroke();
 
     this._calcPosition();
     this._move();
   },
 };
 
-/* =========================
-   MOUSE
-========================= */
-const mouse = { x: 0, y: 0 };
-
-/* =========================
-   CONFIGURAÇÃO INICIAL
-========================= */
-function setup() {
-  canvasEl.width = field.w;
-  canvasEl.height = field.h;
-  // Centraliza a bola no início do jogo
-  ball.x = field.w / 2;
-  ball.y = field.h / 2;
-}
-
-/* =========================
-   LOOP DE DESENHO
-========================= */
 function draw() {
   field.draw();
   line.draw();
@@ -282,10 +250,10 @@ function draw() {
 setup();
 draw();
 
-// Executa o draw 60 vezes por segundo (FPS)
+// Executa o draw 60 vezes por segundo (FPS):
 window.setInterval(draw, 1000 / 60);
 
-// Captura o movimento do mouse
+// Captura o movimento do mouse:
 canvasEl.addEventListener("mousemove", function (e) {
   mouse.x = e.pageX;
   mouse.y = e.pageY;
